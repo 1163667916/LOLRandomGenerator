@@ -1,0 +1,131 @@
+[
+  {
+    "id": 1,
+    "name": "屏障",
+    "img": "SummonerBarrier.png",
+    "type": [
+      1,
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 2,
+    "name": "净化",
+    "img": "SummonerBoost.png",
+    "type": [
+      1,
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 3,
+    "name": "点燃",
+    "img": "SummonerDot.png",
+    "type": [
+      1,
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 4,
+    "name": "虚弱",
+    "img": "SummonerExhaust.png",
+    "type": [
+      1,
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 5,
+    "name": "闪现",
+    "img": "SummonerFlash.png",
+    "type": [
+      1,
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 6,
+    "name": "幽灵疾步",
+    "img": "SummonerHaste.png",
+    "type": [
+      1,
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 7,
+    "name": "治疗术",
+    "img": "SummonerHeal.png",
+    "type": [
+      1,
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 8,
+    "name": "清晰术",
+    "img": "SummonerMana.png",
+    "type": [
+      1,
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 9,
+    "name": "惩戒",
+    "img": "SummonerSmite.png",
+    "type": [
+      1
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 10,
+    "name": "传送",
+    "img": "SummonerTeleport.png",
+    "type": [
+      1
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  },
+  {
+    "id": 11,
+    "name": "雪球",
+    "img": "SummonerSnowball.png",
+    "type": [
+      2
+    ],
+    "comment": {
+      "type": "1 召唤师峡谷,2 大乱斗"
+    }
+  }
+]

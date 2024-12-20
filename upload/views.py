@@ -6,7 +6,7 @@ import qrcode
 import os
 
 from django.shortcuts import render
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, FileResponse
 
 from frontend.decorator.post_only import post
 from .models import VideoInfo, FileViewer
@@ -78,32 +78,40 @@ file_viewer_tool = FileTool(viewer_path_file)
 qrcode_viewer_tool = FileTool(viewer_path_qrcode)
 
 
-@post
+# @post
 def upload_img(request: HttpRequest):
-    from frontend import GlobalData
-    img_file = None
-    try:
-        img_file = request.FILES['x-file']
-    except:
-        return HttpResponse(json.dumps({'code': 0, 'msg': 'not file uploaded', 'data': {}}))
-    from frontend.utils.common import hash_name, store_static_path
-    filename, ext = getExt(img_file.name)
-    print(time.time())
-    print(time.time() * 1000)
-    filename = hash_name(
-        f'{filename}-{int(time.time() * 1000)}').hexdigest() + '.png'
-    print(filename)
-    saved_path = save_file(img_file, file_viewer_tool)
-    if saved_path:
-        print(viewer_path_file, saved_path)
+    from frontend.settings import BASE_DIR
+    import os
+    file = open(os.path.join(BASE_DIR, 'statics',
+                'com.autonoelle.mobile.1.2.10.apk'), 'rb')
+    response = FileResponse(file)
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment;filename="apk.apk"'
+    return response
+    # from frontend import GlobalData
+    # img_file = None
+    # try:
+    #     img_file = request.FILES['x-file']
+    # except:
+    #     return HttpResponse(json.dumps({'code': 0, 'msg': 'not file uploaded', 'data': {}}))
+    # from frontend.utils.common import hash_name, store_static_path
+    # filename, ext = getExt(img_file.name)
+    # print(time.time())
+    # print(time.time() * 1000)
+    # filename = hash_name(
+    #     f'{filename}-{int(time.time() * 1000)}').hexdigest() + '.png'
+    # print(filename)
+    # saved_path = save_file(img_file, file_viewer_tool)
+    # if saved_path:
+    #     print(viewer_path_file, saved_path)
 
-        url = '{host}/statics/{dir}/{filename}'.format(
-            host=GlobalData.LOCAL_HOST, dir=viewer_path_file, filename=saved_path)
-        qrcode_storage_url = store_static_path(
-            f'{viewer_path_qrcode}/{filename}')
-        qrcod_access_url = '{0}/statics/{1}'.format(GlobalData.LOCAL_HOST,
-                                                    f'{viewer_path_qrcode}/{filename}')
-        qrcode_img = qrcode.make(url)
-        qrcode_img.save(qrcode_storage_url)
+    #     url = '{host}/statics/{dir}/{filename}'.format(
+    #         host=GlobalData.LOCAL_HOST, dir=viewer_path_file, filename=saved_path)
+    #     qrcode_storage_url = store_static_path(
+    #         f'{viewer_path_qrcode}/{filename}')
+    #     qrcod_access_url = '{0}/statics/{1}'.format(GlobalData.LOCAL_HOST,
+    #                                                 f'{viewer_path_qrcode}/{filename}')
+    #     qrcode_img = qrcode.make(url)
+    #     qrcode_img.save(qrcode_storage_url)
 
-    return HttpResponse(json.dumps({'code': 1, 'msg': 'success', 'data': {'url': qrcod_access_url}}))
+    # return HttpResponse(json.dumps({'code': 1, 'msg': 'success', 'data': {'url': qrcod_access_url}}))

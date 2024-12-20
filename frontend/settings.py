@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'index.apps.IndexConfig',
-    'upload.apps.UploadConfig'
+    'upload.apps.UploadConfig',
+    'PhotoStore.apps.PhotostoreConfig',
+    'compile.apps.CompileConfig',
+    'lol.apps.LolConfig',
 ]
 
 MIDDLEWARE = [
@@ -77,9 +80,15 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        "OPTIONS": {
+            "read_default_file": os.path.join(BASE_DIR, 'mysql.cnf'),
+        },
     }
 }
 
@@ -120,10 +129,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/statics/'
+STATIC_URL = '/api/statics/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'statics'),
+    os.path.join(BASE_DIR, "py", "images"),
+    os.path.join(BASE_DIR, "py", "position"),
+    os.path.join(BASE_DIR, "py", "rune"),
+    os.path.join(BASE_DIR, "py", "summoner_skill"),
 ]
 
 # Default primary key field type

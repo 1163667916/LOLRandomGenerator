@@ -21,4 +21,6 @@ urlpatterns = [
     path('index/', include('index.urls')),
     path('lol/', include('lol.urls')),
     path('upload/', include('upload.urls')),
+    path('photoStore/', include('PhotoStore.urls')),
+    path('compile/', include('compile.urls')),
 ]

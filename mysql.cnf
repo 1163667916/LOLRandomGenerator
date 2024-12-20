@@ -1,0 +1,5 @@
+[client]
+database = everythingwillbefun
+user = root
+password = 163a163@
+default-character-set = utf8mb4

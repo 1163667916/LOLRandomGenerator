@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "position": "top",
+    "img": "01-icon-01-lol-icon-position-top.svg"
+  },
+  {
+    "id": 2,
+    "position": "jungle",
+    "img": "01-icon-01-lol-icon-position-jng.svg"
+  },
+  {
+    "id": 3,
+    "position": "middle",
+    "img": "01-icon-01-lol-icon-position-mid.svg"
+  },
+  {
+    "id": 4,
+    "position": "bottom",
+    "img": "01-icon-01-lol-icon-position-bot.svg"
+  },
+  {
+    "id": 5,
+    "position": "support",
+    "img": "01-icon-01-lol-icon-position-sup.svg"
+  }
+]

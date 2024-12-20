@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>随机英雄抽取</title>
+  <script>
+    var championData = {{ champions | safe }}
+    var runeData = {{ runeData | safe }}
+    var positionData = {{ positionData | safe }}
+    var summonerSkillData = {{ summonerSkillData | safe }}
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .champion {
+      height: 120px;
+    }
+
+    .champion img {
+      width: 120px;
+      height: 120px;
+    }
+
+    .skill>img {
+      margin: 0 10px;
+    }
+
+    .position,
+    .rune,
+    .skill,
+    .equipment {
+      height: 50px;
+    }
+
+    .position img,
+    .rune img,
+    .skill img,
+    .equipment img {
+      width: 50px;
+      height: 50px;
+    }
+
+    div[id^=summoner] img {
+      border: 1px solid gray;
+      box-shadow: 0 1px 5px gray;
+      border-radius: 3px;
+    }
+
+    div[id^=summoner]>div {
+      margin-bottom: 15px;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body class="flex flex-col h-full">
+  <header class="w-full text-center py-4 bg-red-200">
+    <h1 class="text-2xl font-bold">Random Champion Generator</h1>
+
+    <div class="py-2 flex justify-center">
+      <div class="mr-5">
+        <span>蓝方（人数）：</span>
+        <input id="blueTeamPlayerNum" placeholder="" value="3" />
+      </div>  
+      <div>
+        <span>红方（人数）：</span>
+        <input id="redTeamPlayerNum" placeholder="" value="3" />
+      </div>  
+    </div>
+
+    <div class="py-2 flex justify-center">
+      <div class="pr-4">
+        <label for="mode01">大乱斗：</label>
+        <input type="radio" id="mode01" name="gameMode" value="2" checked />
+      </div>
+      <div class="pl-8">
+        <label for="mode02">召唤师峡谷：</label>
+        <input type="radio" id="mode02" name="gameMode" value="1" />
+      </div>  
+    </div>
+
+    <div>
+      <button id="start"
+        class="mr-4 bg-blue-700 hover:bg-blue-500 active:bg-blue-400 py-2 px-4 text-white rounded">开始抽取</button>
+      <button id="stop" class="bg-red-700 hover:bg-red-500 active:bg-red-400 py-2 px-4 text-white rounded">停止抽取</button>
+    </div>
+  </header>
+
+  <section class="h-screen flex-1 pb-8">
+    <div id="champion-container" class="pt-8 max-w-screen-xl mx-auto w-full h-full flex justify-space-between">
+      <div id="blue-team-container" class="flex flex-col flex-1">
+
+      </div>
+      <div id="red-team-container" class="flex flex-col flex-1 items-end">
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="fixed w-full bottom-0 text-center py-4 bg-red-200">
+    <p>Support By @Shiomiyashiori</p>
+  </footer>
+
+  <script>
+    const championCount = 5
+
+    const ChampionSelectedMode = {
+      REPEAT: 0,
+      NO_REPEAT: 1
+    }
+
+    class Message {
+      static alert(msg) {
+        window.alert(msg)
+      }
+    }
+
+    class ChampionPool {
+      constructor(data) {
+        this.data = data
+        this.mode = ChampionSelectedMode["REPEAT"]
+        this._selected = []
+        this._length = data.length
+      }
+
+      choice() {
+        if (this._length - this._selected.length < 5) {
+          Message.alert("当前剩余英雄池不足以分配，请重置英雄池！")
+          return
+        }
+
+        while (true) {
+          const num = Math.floor(Math.random() * this._length)
+          const champion = this.data[num]
+          if (champion && !this._selected.includes(champion.id)) {
+            if (this.isNoRepeat()) {
+              this.freeze(champion.id)
+            }
+            return champion
+          }
+        }
+      }
+
+      isNoRepeat() {
+        return this.mode === 1
+      }
+
+      setMode(mode) {
+        this.mode = mode
+      }
+
+      freeze(championId) {
+        this._selected.push(championId)
+      }
+
+      reset() {
+        this._selected = []
+        this.mode = ChampionSelectedMode["REPEAT"]
+      }
+
+      clear() {
+
+      }
+    }
+
+    class PositionPool {
+      constructor(data) {
+        this.data = data
+        this._selected = []
+        this._length = data.length
+
+        this._choiceList = JSON.parse(JSON.stringify(this.data))
+      }
+
+      choice(isMode2) {
+        if (isMode2) {
+          return this._choiceList.find(item => item.position === "middle")
+        }
+        const num = Math.floor(Math.random() * this._choiceList.length)
+        const pos = this._choiceList[num]
+        if (pos && !this._selected.includes(pos.id)) {
+          this._choiceList = this._choiceList.filter(i => i.id !== pos.id)
+          return pos
+        }
+      }
+
+      reset() {
+        this._selected = []
+        this._choiceList = JSON.parse(JSON.stringify(this.data))
+      }
+
+      clear() {
+        this._selected = []
+        this._choiceList = JSON.parse(JSON.stringify(this.data))
+      }
+    }
+
+    class RunePool {
+      constructor(data) {
+        this.data = data
+        this._length = data.length
+      }
+
+      choice() {
+        const num = Math.floor(Math.random() * this._length)
+        const rune = this.data[num]
+        if (rune) {
+          return rune
+        }
+      }
+
+      reset() {
+
+      }
+
+      clear() {
+
+      }
+    }
+
+    class SkillPool {
+      constructor(data) {
+        this.data = data
+        this._length = data.length
+      }
+
+      choice(isJungle, isMode2) {
+        const skills = []
+        const selected = []
+
+        if (isJungle) {
+          const cj = this.data.find(i => i.name === "惩戒")
+          skills.push(cj)
+          selected.push(cj.id)
+        }
+
+        while (true) {
+          const num = Math.floor(Math.random() * this._length)
+          const skill = this.data[num]
+          if (skills.length >= 2) {
+            break
+          }
+          
+
+          if (skill && !selected.includes(skill.id) && skill.name !== "惩戒") {
+            if (isMode2 && !skill.type.includes(2)) {
+              continue
+            }
+            skills.push(skill)
+            selected.push(skill.id)
+          }
+        }
+
+        return skills
+      }
+
+      reset() {
+      }
+
+      clear() { }
+    }
+
+    class Player {
+      constructor(element) {
+        this._element = element
+        this.champion = null
+        this.position = null
+        this.rune = null
+        this.skills = []
+        this.firstItem = null
+      }
+
+      get Element() {
+        return this._element;
+      }
+
+      get IsJungle() {
+        return this.position.position === "jungle"
+      }
+
+      setChampion(champion) {
+        this.champion = champion
+      }
+
+      setPosition(pos) {
+        this.position = pos
+      }
+
+      setRune(rune) {
+        this.rune = rune
+      }
+
+      setSkills(skills) {
+        this.skills = skills
+      }
+
+      setFirstItem(item) {
+        this.firstItem = item
+      }
+
+      clear() {
+        this.champion = null
+        this.position = null
+        this.rune = null
+        this.skills = []
+        this.firstItem = null
+      }
+
+      render() {
+        [].forEach.call(this._element.children, (el) => {
+          if (/champion/ig.test(el.className)) {
+            el.children[0].src = "/api/statics/" + `${this.champion.id}_${this.champion.key}.png`
+          } else if (/position/ig.test(el.className)) {
+            el.children[0].src = "/api/statics/" + this.position?.img
+          } else if (/rune/ig.test(el.className)) {
+            el.children[0].src = "/api/statics/" + this.rune?.img
+          } else if (/skill/ig.test(el.className)) {
+            el.children[0].src = "/api/statics/" + this.skills[0]?.img
+            el.children[1].src = "/api/statics/" + this.skills[1]?.img
+          }
+        })
+      }
+    }
+
+    class Team {
+      constructor(container, teamId, num) {
+        this.container = container
+        this.teamId = teamId
+        this.num = num
+        this.championPool = new ChampionPool(championData)
+        this.positionPool = new PositionPool(positionData)
+        this.runePool = new RunePool(runeData)
+        this.skillPool = new SkillPool(summonerSkillData)
+        this.elements = []
+        this.mode = "2"
+        this._genElements()
+      }
+
+      setTeamNum(n) {
+        this.num = n
+        this._genElements()
+      }
+
+      setGameMode(mode) {
+        this.mode = mode
+      }
+
+      _isMode2() {
+        return this.mode === "2"
+      }
+
+      reset() {
+        this.elemnts.forEach(item => {
+          item.parentElement.removeChild(item)
+        })
+        this.elments = []
+        this.championPool.clear()
+        this.positionPool.clear()
+        this.runePool.clear()
+        this.skillPool.clear()
+      }
+
+      resetPool() {
+        this.championPool.clear()
+        this.positionPool.clear()
+        this.runePool.clear()
+        this.skillPool.clear()
+      }
+
+      _genElements() {
+        this.elments = Array(this.num).fill("0").map((_, i) => {
+          const id = `${this.teamId}_summoner_${(i + 1 + "").padStart(2, "0")}`
+          if (!document.getElementById(id)) {
+            const el = getHTMLElement(id)
+            this.container.appendChild(el)
+            return el
+          }
+          return document.getElementById(id)
+        })
+      }
+
+      start() {
+        this.resetPool()
+        this.elments.forEach((el, idx) => {
+          //const el = getHTMLElement(id)
+          // const el = document.getElementById(id)
+  
+          const player = new Player(el)
+          player.setChampion(this.championPool.choice())
+          player.setPosition(this.positionPool.choice(this._isMode2()))
+          player.setRune(this.runePool.choice())
+          player.setSkills(this.skillPool.choice(player.IsJungle, this._isMode2()))
+          player.render()
+        })
+      }
+    }
+
+    const getHTMLElement = (elId) => {
+      const el = document.createElement("div")
+      el.className = "flex-1"
+      el.id = elId
+      el.innerHTML = `<div class="champion flex">
+          <!-- <span>英雄：</span> -->
+          <img src="" alt="暂未抽取" />
+        </div>
+        <div class="position flex">
+          <!-- <span>位置：</span> -->
+          <img src="" alt="暂未抽取" />
+        </div>
+        <div class="rune flex">
+          <!-- <span>天赋：</span> -->
+          <img src="" alt="暂未抽取" />
+        </div>
+        <div class="skill flex">
+          <!-- <span>技能：</span> -->
+          <img src="" alt="暂未抽取" />
+          <img src="" alt="暂未抽取" />
+        </div>
+        <!-- <div class="equipment flex">
+          <span>第一件装备（暂未实现...）：</span>
+          <img src="" alt="暂未抽取" />
+        </div> -->`
+      return el
+    }
+
+    const startButton = document.getElementById("start")
+    const stopButton = document.getElementById("stop")
+
+    const championContainer = document.getElementById("champion-container")
+
+    const blueTeamContainer = document.getElementById("blue-team-container")
+    const redTeamContainer = document.getElementById("red-team-container")
+
+    const blueTeamPlayerNum = document.getElementById("blueTeamPlayerNum")
+    const redTeamPlayerNum = document.getElementById("redTeamPlayerNum")
+
+    let intervalId = null
+
+    const blueTeam = new Team(blueTeamContainer, "blueTeam", 0)
+    const redTeam = new Team(redTeamContainer, "redTeam", 0)
+
+    startButton.onclick = () => {
+      if (intervalId) {
+        return
+      }
+
+      const blueTeamValue = document.getElementById("blueTeamPlayerNum").value
+      const redTeamValue = document.getElementById("redTeamPlayerNum").value
+      // Game Mode 1->召唤师峡谷,2->大乱斗
+      const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
+
+      if (!blueTeamValue) {
+        return alert("请输入红蓝方人数!!!")
+      }
+      if (!redTeamValue) {
+        return alert("请输入红蓝方人数!!!")
+      }
+
+      let parseIntBlueValue = parseInt(blueTeamValue)
+      let parseIntRedValue = parseInt(redTeamValue)
+
+      if (parseIntBlueValue < 0 || parseIntBlueValue > 5) {
+        return alert("蓝方人数 0~5")
+      }
+
+      if (parseIntRedValue < 0 || parseIntRedValue > 5) {
+        return alert("红方人数 0~5")
+      }
+
+      blueTeam.setTeamNum(parseIntBlueValue)
+      blueTeam.setGameMode(gameMode)
+      redTeam.setTeamNum(parseIntRedValue)
+      redTeam.setGameMode(gameMode)
+
+      intervalId = setInterval(() => {
+        blueTeam.start()
+        redTeam.start()
+      }, 50);
+    }
+
+    stopButton.onclick = () => {
+      clearInterval(intervalId)
+      intervalId = null
+    }
+
+  </script>
+</body>
+
+</html>
