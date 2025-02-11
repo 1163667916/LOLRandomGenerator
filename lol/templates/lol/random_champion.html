@@ -13,12 +13,20 @@
     }
 
     .champion {
-      height: 120px;
+      height: 110px;
+      width: 110px;
+      border-radius: 50%;
+      border: 2px solid #a57f30;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .champion img {
-      width: 120px;
-      height: 120px;
+      width: 120px !important;
+      height: 120px !important;
+      max-width: max-content;
     }
 
     .skill>img {
@@ -54,6 +62,56 @@
     div[id^=summoner]>div {
       margin-bottom: 15px;
       justify-content: center;
+    }
+
+    #blue-team-container {
+      padding-right: 10px;
+    }
+
+    #red-team-container {
+      padding-left: 10px;
+    }
+
+    #blue-team-container .divider {
+      background: linear-gradient(to right, #463720 0%, #201e16 100%);
+      /* background: linear-gradient(to right, #333, #333 50%, #eee 75%, #333 75%); */
+      width: 100%;
+      height: 2px;
+      margin: 20px 0 20px 4px;
+      position: relative;
+    }
+
+    #blue-team-container .divider::before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border: 2px solid #463720;
+      transform: rotate(45deg);
+      left: -15px;
+      top: -7.5px;
+    }
+
+    #red-team-container .divider {
+      background: linear-gradient(to left, #463720 0%, #201e16 100%);
+      /* background: linear-gradient(to right, #333, #333 50%, #eee 75%, #333 75%); */
+      width: 100%;
+      height: 2px;
+      margin: 20px 0 20px 4px;
+      position: relative;
+    }
+
+    #red-team-container .divider::before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border: 2px solid #463720;
+      transform: rotate(45deg);
+      right: -15px;
+      top: -7.5px;
     }
   </style>
   <script>
@@ -102,38 +160,46 @@
     <section class="h-screen flex-1 pb-8">
       <div id="champion-container" class="pt-8 max-w-screen-xl mx-auto w-full h-full flex justify-between">
         <div id="blue-team-container" class="flex flex-col flex-1">
-          <div v-for="(player, index) in blueTeam.players" :key="index" class="flex-1 flex flex-row items-start mb-5">
-            <div class="champion mr-2">
-              <img :src="`/api/statics/${player.champion?.id}_${player.champion?.key}.png`" alt="暂未抽取" />
-            </div>
-            <div class="h-full flex flex-col justify-around">
-              <img class="w50-h50" :src="`/api/statics/${player.skills?.[0]?.img}`" alt="暂未抽取" />
-              <img class="w50-h50" :src="`/api/statics/${player.skills?.[1]?.img}`" alt="暂未抽取" />
-            </div>
-            <div class="h-full position flex items-center">
-              <img :src="`/api/statics/${player.position?.img}`" alt="暂未抽取" />
-            </div>
-            <div class="h-full rune flex items-center">
-              <img :src="`/api/statics/${player.rune?.img}`" alt="暂未抽取" />
+          <div v-for="(player, index) in blueTeam.players" :key="index">
+            <div class="divider"></div>
+            <div class="flex-1 flex flex-row items-center">
+              <div class="champion mr-2">
+                <img :src="`/api/statics/${player.champion?.id}_${player.champion?.key}.png`" alt="暂未抽取" />
+              </div>
+              <div class="h-full flex flex-col justify-around">
+                <img class="w50-h50" :src="`/api/statics/${player.skills?.[0]?.img}`" alt="暂未抽取" />
+                <img class="w50-h50" :src="`/api/statics/${player.skills?.[1]?.img}`" alt="暂未抽取" />
+              </div>
+              <div class="h-full position flex items-center">
+                <img :src="`/api/statics/${player.position?.img}`" alt="暂未抽取" />
+              </div>
+              <div class="h-full rune flex items-center">
+                <img :src="`/api/statics/${player.rune?.img}`" alt="暂未抽取" />
+              </div>
             </div>
           </div>
+          <div class="divider"></div>
         </div>
-        <div id="red-team-container" class="flex flex-col flex-1 items-end">
-          <div v-for="(player, index) in redTeam.players" :key="index" class="flex-1 flex flex-row-reverse">
-            <div class="champion flex">
-              <img :src="`/api/statics/${player.champion?.id}_${player.champion?.key}.png`" alt="暂未抽取" />
-            </div>
-            <div class="skill flex">
-              <img :src="`/api/statics/${player.skills?.[0]?.img}`" alt="暂未抽取" />
-              <img :src="`/api/statics/${player.skills?.[1]?.img}`" alt="暂未抽取" />
-            </div>
-            <div class="position flex">
-              <img :src="`/api/statics/${player.position?.img}`" alt="暂未抽取" />
-            </div>
-            <div class="rune flex">
-              <img :src="`/api/statics/${player.rune?.img}`" alt="暂未抽取" />
+        <div id="red-team-container" class="flex flex-col flex-1">
+          <div v-for="(player, index) in redTeam.players" :key="index">
+            <div class="divider"></div>
+            <div class="flex-1 flex flex-row-reverse items-center">
+              <div class="champion flex ml-2">
+                <img :src="`/api/statics/${player.champion?.id}_${player.champion?.key}.png`" alt="暂未抽取" />
+              </div>
+              <div class="h-full flex flex-col justify-around">
+                <img class="w50-h50" :src="`/api/statics/${player.skills?.[0]?.img}`" alt="暂未抽取" />
+                <img class="w50-h50" :src="`/api/statics/${player.skills?.[1]?.img}`" alt="暂未抽取" />
+              </div>
+              <div class="position h-full flex items-center">
+                <img :src="`/api/statics/${player.position?.img}`" alt="暂未抽取" />
+              </div>
+              <div class="rune h-full flex items-center">
+                <img :src="`/api/statics/${player.rune?.img}`" alt="暂未抽取" />
+              </div>
             </div>
           </div>
+          <div class="divider"></div>
         </div>
       </div>
     </section>
