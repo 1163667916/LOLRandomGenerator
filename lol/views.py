@@ -1,3 +1,4 @@
+import random
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
 from django.template import loader
@@ -42,6 +43,7 @@ CHAMPION_DATA_PATH = os.path.join(BASE_DIR, "py", "champions.json")
 RUNE_DATA_PATH = os.path.join(BASE_DIR, "py", "rune.json")
 POSITION_DATA_PATH = os.path.join(BASE_DIR, "py", "position.json")
 SUMMONER_SKILL_DATA_PATH = os.path.join(BASE_DIR, "py", "summonerSkill.json")
+BACKGROUND_IMAGE_PATH = os.path.join(BASE_DIR, "py", "bg")
 
 def read_file(filepath):
   if os.path.exists(filepath):
@@ -55,7 +57,10 @@ def random_champion(request: HttpRequest):
   runeData = read_file(RUNE_DATA_PATH)
   posData = read_file(POSITION_DATA_PATH)
   summonerSkillData = read_file(SUMMONER_SKILL_DATA_PATH)
-  print(summonerSkillData)
+  
+  bg_list = os.listdir(BACKGROUND_IMAGE_PATH)
+  bg = random.choice(bg_list)
+
   template = loader.get_template("lol/random_champion.html")
 
   context = {
@@ -63,6 +68,7 @@ def random_champion(request: HttpRequest):
     "runeData": runeData,
     "positionData": posData,
     "summonerSkillData": summonerSkillData,
+    "backgroundFile": bg,
   }
 
   return HttpResponse(template.render(context, request))

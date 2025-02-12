@@ -1,485 +1,605 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>随机英雄抽取</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      * {
+        border-sizing: border-box;
+      }
+      body {
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>随机英雄抽取</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background-color: #0a0f11;
-    }
+      .page-bg {
+        position: fixed;
+        background: url("/api/statics/{{backgroundFile}}") center center;
+        background-size: cover;
+        width: 100%;
+        height: 100%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+        filter: blur(3px);
+      }
 
-    .champion {
-      height: 110px;
-      width: 110px;
-      border-radius: 50%;
-      border: 2px solid #a57f30;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+      .page-color-bg {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: -1;
+      }
 
-    .champion img {
-      width: 120px !important;
-      height: 120px !important;
-      max-width: max-content;
-    }
+      #champion-container {
+        max-width: 1920px;
+        width: 100%;
+      }
 
-    .skill>img {
-      margin: 0 10px;
-    }
+      .champion {
+        height: 110px;
+        width: 110px;
+        border-radius: 50%;
+        border: 2px solid #a57f30;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-    .position,
-    .rune,
-    .skill,
-    .equipment {
-      height: 50px;
-    }
+      .champion img {
+        width: 120px !important;
+        height: 120px !important;
+        max-width: max-content;
+      }
 
-    .position img,
-    .rune img,
-    .skill img,
-    .equipment img {
-      width: 50px;
-      height: 50px;
-    }
+      .skill > img {
+        margin: 0 10px;
+      }
 
-    .w50-h50 {
-      width: 50px;
-      height: 50px;
-    }
+      .position,
+      .rune,
+      .skill,
+      .equipment {
+        height: 50px;
+      }
 
-    div[id^=summoner] img {
-      border: 1px solid gray;
-      box-shadow: 0 1px 5px gray;
-      border-radius: 3px;
-    }
+      .position img,
+      .rune img,
+      .skill img,
+      .equipment img {
+        width: 50px;
+        height: 50px;
+      }
 
-    div[id^=summoner]>div {
-      margin-bottom: 15px;
-      justify-content: center;
-    }
+      .w50-h50 {
+        width: 50px;
+        height: 50px;
+      }
 
-    #blue-team-container {
-      padding-right: 10px;
-    }
+      div[id^="summoner"] img {
+        border: 1px solid gray;
+        box-shadow: 0 1px 5px gray;
+        border-radius: 3px;
+      }
 
-    #red-team-container {
-      padding-left: 10px;
-    }
+      div[id^="summoner"] > div {
+        margin-bottom: 15px;
+        justify-content: center;
+      }
 
-    #blue-team-container .divider {
-      background: linear-gradient(to right, #463720 0%, #201e16 100%);
-      /* background: linear-gradient(to right, #333, #333 50%, #eee 75%, #333 75%); */
-      width: 100%;
-      height: 2px;
-      margin: 20px 0 20px 4px;
-      position: relative;
-    }
+      #blue-team-container {
+        padding-right: 10px;
+      }
 
-    #blue-team-container .divider::before {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 15px;
-      height: 15px;
-      border: 2px solid #463720;
-      transform: rotate(45deg);
-      left: -15px;
-      top: -7.5px;
-    }
+      #red-team-container {
+        padding-left: 10px;
+      }
 
-    #red-team-container .divider {
-      background: linear-gradient(to left, #463720 0%, #201e16 100%);
-      /* background: linear-gradient(to right, #333, #333 50%, #eee 75%, #333 75%); */
-      width: 100%;
-      height: 2px;
-      margin: 20px 0 20px 4px;
-      position: relative;
-    }
+      #blue-team-container .divider {
+        background: linear-gradient(to right, #463720 0%, #201e16 100%);
+        /* background: linear-gradient(to right, #333, #333 50%, #eee 75%, #333 75%); */
+        width: 100%;
+        height: 2px;
+        margin: 20px 0 20px 0px;
+        position: relative;
+      }
 
-    #red-team-container .divider::before {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 15px;
-      height: 15px;
-      border: 2px solid #463720;
-      transform: rotate(45deg);
-      right: -15px;
-      top: -7.5px;
-    }
-  </style>
-  <script>
-    var g_championData = {{ champions | safe }}
-    var g_runeData = {{ runeData | safe }}
-    var g_positionData = {{ positionData | safe }}
-    var g_summonerSkillData = {{ summonerSkillData | safe }}
-  </script>
-</head>
+      #blue-team-container .divider::before {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        border: 2px solid #463720;
+        background-color: #463720;
+        transform: rotate(45deg);
+        left: 3px;
+        top: -7.5px;
+      }
 
-<body class="flex flex-col h-full">
-  <div id="app" class="flex flex-col h-full">
-    <header class="w-full text-center py-4 bg-red-200">
-      <h1 class="text-2xl font-bold">Random Champion Generator</h1>
+      #red-team-container .divider {
+        background: linear-gradient(to left, #463720 0%, #201e16 100%);
+        /* background: linear-gradient(to right, #333, #333 50%, #eee 75%, #333 75%); */
+        width: 100%;
+        height: 2px;
+        margin: 20px 0 20px 0px;
+        position: relative;
+      }
 
-      <div class="py-2 flex justify-center">
-        <div class="mr-5">
-          <span>蓝方（人数）：</span>
-          <input v-model="blueTeamPlayerNum" placeholder="" value="3" />
+      #red-team-container .divider::before {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        border: 2px solid #463720;
+        background-color: #463720;
+        transform: rotate(45deg);
+        right: 3px;
+        top: -7.5px;
+      }
+
+      .operation {
+        position: relative;
+        width: 800px;
+        background-color: rgba(5, 9, 11, 0.55);
+      }
+    </style>
+    <script>
+      var g_championData = {{ champions | safe }}
+      var g_runeData = {{ runeData | safe }}
+      var g_positionData = {{ positionData | safe }}
+      var g_summonerSkillData = {{ summonerSkillData | safe }}
+    </script>
+  </head>
+
+  <body class="h-full relative">
+    <div class="page-bg"></div>
+    <div class="page-color-bg"></div>
+    <div id="app" class="flex flex-col h-full">
+      <header class="w-full text-center py-4">
+        <h1 class="text-2xl font-bold text-[#b2d0c3]">
+          Random Champion Generator
+        </h1>
+
+        <div class="py-2 flex justify-center">
+          <div class="mr-5">
+            <span class="text-[#b2d0c3]">蓝方（人数）：</span>
+            <input
+              type="number"
+              v-model="blueTeamPlayerNum"
+              placeholder=""
+              value="3"
+            />
+          </div>
+          <div>
+            <span class="text-[#b2d0c3]">红方（人数）：</span>
+            <input
+              type="number"
+              v-model="redTeamPlayerNum"
+              placeholder=""
+              value="3"
+            />
+          </div>
         </div>
+
+        <div class="py-2 flex justify-center">
+          <div class="pr-4">
+            <label for="mode01" class="text-[#b2d0c3]">大乱斗：</label>
+            <input
+              type="radio"
+              id="mode01"
+              v-model="gameMode"
+              value="2"
+              checked
+            />
+          </div>
+          <div class="pl-8">
+            <label for="mode02" class="text-[#b2d0c3]">召唤师峡谷：</label>
+            <input type="radio" id="mode02" v-model="gameMode" value="1" />
+          </div>
+        </div>
+
         <div>
-          <span>红方（人数）：</span>
-          <input v-model="redTeamPlayerNum" placeholder="" value="3" />
+          <button
+            @click="start"
+            class="mr-4 bg-blue-700 hover:bg-blue-500 active:bg-blue-400 py-2 px-4 text-white rounded"
+          >
+            开始抽取
+          </button>
+          <button
+            @click="stop"
+            class="bg-red-700 hover:bg-red-500 active:bg-red-400 py-2 px-4 text-white rounded"
+          >
+            停止抽取
+          </button>
         </div>
-      </div>
+      </header>
 
-      <div class="py-2 flex justify-center">
-        <div class="pr-4">
-          <label for="mode01">大乱斗：</label>
-          <input type="radio" id="mode01" v-model="gameMode" value="2" checked />
-        </div>
-        <div class="pl-8">
-          <label for="mode02">召唤师峡谷：</label>
-          <input type="radio" id="mode02" v-model="gameMode" value="1" />
-        </div>
-      </div>
-
-      <div>
-        <button @click="start"
-          class="mr-4 bg-blue-700 hover:bg-blue-500 active:bg-blue-400 py-2 px-4 text-white rounded">开始抽取</button>
-        <button @click="stop"
-          class="bg-red-700 hover:bg-red-500 active:bg-red-400 py-2 px-4 text-white rounded">停止抽取</button>
-      </div>
-    </header>
-
-    <section class="h-screen flex-1 pb-8">
-      <div id="champion-container" class="pt-8 max-w-screen-xl mx-auto w-full h-full flex justify-between">
-        <div id="blue-team-container" class="flex flex-col flex-1">
-          <div v-for="(player, index) in blueTeam.players" :key="index">
-            <div class="divider"></div>
-            <div class="flex-1 flex flex-row items-center">
-              <div class="champion mr-2">
-                <img :src="`/api/statics/${player.champion?.id}_${player.champion?.key}.png`" alt="暂未抽取" />
-              </div>
-              <div class="h-full flex flex-col justify-around">
-                <img class="w50-h50" :src="`/api/statics/${player.skills?.[0]?.img}`" alt="暂未抽取" />
-                <img class="w50-h50" :src="`/api/statics/${player.skills?.[1]?.img}`" alt="暂未抽取" />
-              </div>
-              <div class="h-full position flex items-center">
-                <img :src="`/api/statics/${player.position?.img}`" alt="暂未抽取" />
-              </div>
-              <div class="h-full rune flex items-center">
-                <img :src="`/api/statics/${player.rune?.img}`" alt="暂未抽取" />
+      <section class="h-screen flex-1 pb-8">
+        <div
+          id="champion-container"
+          class="pt-8 mx-auto h-full flex justify-between"
+        >
+          <div id="blue-team-container" class="flex flex-col flex-1">
+            <div v-for="(player, index) in blueTeam.players" :key="index">
+              <div class="divider"></div>
+              <div class="flex-1 flex flex-row items-center">
+                <div class="champion mr-2">
+                  <img
+                    :src="`/api/statics/${player.champion?.id}_${player.champion?.key}.png`"
+                    alt="暂未抽取"
+                  />
+                </div>
+                <div class="h-full flex flex-col justify-around">
+                  <img
+                    class="w50-h50"
+                    :src="`/api/statics/${player.skills?.[0]?.img}`"
+                    alt="暂未抽取"
+                  />
+                  <img
+                    class="w50-h50"
+                    :src="`/api/statics/${player.skills?.[1]?.img}`"
+                    alt="暂未抽取"
+                  />
+                </div>
+                <div class="h-full position flex items-center">
+                  <img
+                    :src="`/api/statics/${player.position?.img}`"
+                    alt="暂未抽取"
+                  />
+                </div>
+                <div class="h-full rune flex items-center">
+                  <img
+                    :src="`/api/statics/${player.rune?.img}`"
+                    alt="暂未抽取"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div class="divider"></div>
-        </div>
-        <div id="red-team-container" class="flex flex-col flex-1">
-          <div v-for="(player, index) in redTeam.players" :key="index">
             <div class="divider"></div>
-            <div class="flex-1 flex flex-row-reverse items-center">
-              <div class="champion flex ml-2">
-                <img :src="`/api/statics/${player.champion?.id}_${player.champion?.key}.png`" alt="暂未抽取" />
-              </div>
-              <div class="h-full flex flex-col justify-around">
-                <img class="w50-h50" :src="`/api/statics/${player.skills?.[0]?.img}`" alt="暂未抽取" />
-                <img class="w50-h50" :src="`/api/statics/${player.skills?.[1]?.img}`" alt="暂未抽取" />
-              </div>
-              <div class="position h-full flex items-center">
-                <img :src="`/api/statics/${player.position?.img}`" alt="暂未抽取" />
-              </div>
-              <div class="rune h-full flex items-center">
-                <img :src="`/api/statics/${player.rune?.img}`" alt="暂未抽取" />
+          </div>
+          <div class="operation">1</div>
+          <div id="red-team-container" class="flex flex-col flex-1">
+            <div v-for="(player, index) in redTeam.players" :key="index">
+              <div class="divider"></div>
+              <div class="flex-1 flex flex-row-reverse items-center">
+                <div class="champion flex ml-2">
+                  <img
+                    :src="`/api/statics/${player.champion?.id}_${player.champion?.key}.png`"
+                    alt="暂未抽取"
+                  />
+                </div>
+                <div class="h-full flex flex-col justify-around">
+                  <img
+                    class="w50-h50"
+                    :src="`/api/statics/${player.skills?.[0]?.img}`"
+                    alt="暂未抽取"
+                  />
+                  <img
+                    class="w50-h50"
+                    :src="`/api/statics/${player.skills?.[1]?.img}`"
+                    alt="暂未抽取"
+                  />
+                </div>
+                <div class="position h-full flex items-center">
+                  <img
+                    :src="`/api/statics/${player.position?.img}`"
+                    alt="暂未抽取"
+                  />
+                </div>
+                <div class="rune h-full flex items-center">
+                  <img
+                    :src="`/api/statics/${player.rune?.img}`"
+                    alt="暂未抽取"
+                  />
+                </div>
               </div>
             </div>
+            <div class="divider"></div>
           </div>
-          <div class="divider"></div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <footer class="fixed w-full bottom-0 text-center py-4 bg-red-200">
-      <p>Support By @Shiomiyashiori</p>
-    </footer>
-  </div>
+      <footer class="fixed w-full bottom-0 text-center py-4">
+        <p>Support By @Shiomiyashiori</p>
+      </footer>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
-  <script>
-    const { createApp, ref, reactive, onMounted } = Vue;
+    <script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
+    <script>
+      const { createApp, ref, reactive, onMounted } = Vue;
 
-    const app = createApp({
-      setup() {
-        const blueTeamPlayerNum = ref(3);
-        const redTeamPlayerNum = ref(3);
-        const gameMode = ref('2');
-        const intervalId = ref(null);
+      const app = createApp({
+        setup() {
+          const blueTeamPlayerNum = ref(3);
+          const redTeamPlayerNum = ref(3);
+          const gameMode = ref("2");
+          const intervalId = ref(null);
 
-        const championData = ref([]);
-        const runeData = ref([]);
-        const positionData = ref([]);
-        const summonerSkillData = ref([]);
+          const championData = ref([]);
+          const runeData = ref([]);
+          const positionData = ref([]);
+          const summonerSkillData = ref([]);
 
-        const blueTeam = reactive({
-          players: [],
-          championPool: null,
-          positionPool: null,
-          runePool: null,
-          skillPool: null,
-          setTeamNum(num) {
-            this.players = Array(num).fill(null).map(() => ({
-              champion: null,
-              position: null,
-              rune: null,
-              skills: [],
-            }));
-            this.championPool = new ChampionPool(championData.value);
-            this.positionPool = new PositionPool(positionData.value);
-            this.runePool = new RunePool(runeData.value);
-            this.skillPool = new SkillPool(summonerSkillData.value);
-          },
-          start() {
-            this.players.forEach(player => {
-              player.champion = this.championPool.choice();
-              player.position = this.positionPool.choice(gameMode.value === '2');
-              player.rune = this.runePool.choice();
-              player.skills = this.skillPool.choice(player.position.position === 'jungle', gameMode.value === '2');
-            });
-          },
-        });
+          const blueTeam = reactive({
+            players: [],
+            championPool: null,
+            positionPool: null,
+            runePool: null,
+            skillPool: null,
+            setTeamNum(num) {
+              this.players = Array(num)
+                .fill(null)
+                .map(() => ({
+                  champion: null,
+                  position: null,
+                  rune: null,
+                  skills: [],
+                }));
+              this.championPool = new ChampionPool(championData.value);
+              this.positionPool = new PositionPool(positionData.value);
+              this.runePool = new RunePool(runeData.value);
+              this.skillPool = new SkillPool(summonerSkillData.value);
+            },
+            start() {
+              this.players.forEach((player) => {
+                player.champion = this.championPool.choice();
+                player.position = this.positionPool.choice(
+                  gameMode.value === "2"
+                );
+                player.rune = this.runePool.choice();
+                player.skills = this.skillPool.choice(
+                  player.position.position === "jungle",
+                  gameMode.value === "2"
+                );
+              });
+            },
+          });
 
-        const redTeam = reactive({
-          players: [],
-          championPool: null,
-          positionPool: null,
-          runePool: null,
-          skillPool: null,
-          setTeamNum(num) {
-            this.players = Array(num).fill(null).map(() => ({
-              champion: null,
-              position: null,
-              rune: null,
-              skills: [],
-            }));
-            this.championPool = new ChampionPool(championData.value);
-            this.positionPool = new PositionPool(positionData.value);
-            this.runePool = new RunePool(runeData.value);
-            this.skillPool = new SkillPool(summonerSkillData.value);
-          },
-          start() {
-            this.players.forEach(player => {
-              player.champion = this.championPool.choice();
-              player.position = this.positionPool.choice(gameMode.value === '2');
-              player.rune = this.runePool.choice();
-              player.skills = this.skillPool.choice(player.position.position === 'jungle', gameMode.value === '2');
-            });
-          },
-        });
+          const redTeam = reactive({
+            players: [],
+            championPool: null,
+            positionPool: null,
+            runePool: null,
+            skillPool: null,
+            setTeamNum(num) {
+              this.players = Array(num)
+                .fill(null)
+                .map(() => ({
+                  champion: null,
+                  position: null,
+                  rune: null,
+                  skills: [],
+                }));
+              this.championPool = new ChampionPool(championData.value);
+              this.positionPool = new PositionPool(positionData.value);
+              this.runePool = new RunePool(runeData.value);
+              this.skillPool = new SkillPool(summonerSkillData.value);
+            },
+            start() {
+              this.players.forEach((player) => {
+                player.champion = this.championPool.choice();
+                player.position = this.positionPool.choice(
+                  gameMode.value === "2"
+                );
+                player.rune = this.runePool.choice();
+                player.skills = this.skillPool.choice(
+                  player.position.position === "jungle",
+                  gameMode.value === "2"
+                );
+              });
+            },
+          });
 
-        const start = () => {
-          if (intervalId.value) return;
+          const start = () => {
+            if (intervalId.value) return;
 
-          if (!blueTeamPlayerNum.value || !redTeamPlayerNum.value) {
-            alert("请输入红蓝方人数!!!");
-            return;
-          }
-
-          const parseIntBlueValue = parseInt(blueTeamPlayerNum.value);
-          const parseIntRedValue = parseInt(redTeamPlayerNum.value);
-
-          if (parseIntBlueValue < 0 || parseIntBlueValue > 5) {
-            alert("蓝方人数 0~5");
-            return;
-          }
-
-          if (parseIntRedValue < 0 || parseIntRedValue > 5) {
-            alert("红方人数 0~5");
-            return;
-          }
-
-          blueTeam.setTeamNum(parseIntBlueValue);
-          redTeam.setTeamNum(parseIntRedValue);
-          intervalId.value = setInterval(() => {
-            blueTeam.start();
-            redTeam.start();
-          }, 50);
-        };
-
-        const stop = () => {
-          clearInterval(intervalId.value);
-          intervalId.value = null;
-        };
-
-        onMounted(() => {
-          // 假设这里是从后端获取数据
-          championData.value = g_championData
-          runeData.value = g_runeData
-          positionData.value = g_positionData
-          summonerSkillData.value = g_summonerSkillData
-        });
-
-        return {
-          blueTeamPlayerNum,
-          redTeamPlayerNum,
-          gameMode,
-          blueTeam,
-          redTeam,
-          start,
-          stop,
-        };
-      },
-    });
-    const ChampionSelectedMode = {
-      REPEAT: 0,
-      NO_REPEAT: 1
-    }
-
-    class ChampionPool {
-      constructor(data) {
-        this.data = data;
-        this.mode = ChampionSelectedMode["REPEAT"];
-        this._selected = [];
-        this._length = data.length;
-      }
-
-      choice() {
-        if (this._length - this._selected.length < 5) {
-          alert("当前剩余英雄池不足以分配，请重置英雄池！");
-          return;
-        }
-
-        while (true) {
-          const num = Math.floor(Math.random() * this._length);
-          const champion = this.data[num];
-          if (champion && !this._selected.includes(champion.id)) {
-            if (this.isNoRepeat()) {
-              this.freeze(champion.id);
+            if (!blueTeamPlayerNum.value || !redTeamPlayerNum.value) {
+              alert("请输入红蓝方人数!!!");
+              return;
             }
-            return champion;
-          }
-        }
-      }
 
-      isNoRepeat() {
-        return this.mode === 1;
-      }
+            const parseIntBlueValue = parseInt(blueTeamPlayerNum.value);
+            const parseIntRedValue = parseInt(redTeamPlayerNum.value);
 
-      setMode(mode) {
-        this.mode = mode;
-      }
-
-      freeze(championId) {
-        this._selected.push(championId);
-      }
-
-      reset() {
-        this._selected = [];
-        this.mode = 0;
-      }
-
-      clear() {
-        this._selected = [];
-      }
-    }
-
-    class PositionPool {
-      constructor(data) {
-        this.data = data;
-        this._selected = [];
-        this._length = data.length;
-
-        this._choiceList = JSON.parse(JSON.stringify(this.data));
-      }
-
-      choice(isMode2) {
-        if (isMode2) {
-          return this._choiceList.find(item => item.position === "middle");
-        }
-        const num = Math.floor(Math.random() * this._choiceList.length);
-        const pos = this._choiceList[num];
-        if (pos && !this._selected.includes(pos.id)) {
-          this._choiceList = this._choiceList.filter(i => i.id !== pos.id);
-          return pos;
-        }
-      }
-
-      reset() {
-        this._selected = [];
-        this._choiceList = JSON.parse(JSON.stringify(this.data));
-      }
-
-      clear() {
-        this._selected = [];
-        this._choiceList = JSON.parse(JSON.stringify(this.data));
-      }
-    }
-
-    class RunePool {
-      constructor(data) {
-        this.data = data;
-        this._length = data.length;
-      }
-
-      choice() {
-        const num = Math.floor(Math.random() * this._length);
-        const rune = this.data[num];
-        if (rune) {
-          return rune;
-        }
-      }
-
-      reset() { }
-
-      clear() { }
-    }
-
-    class SkillPool {
-      constructor(data) {
-        this.data = data;
-        this._length = data.length;
-      }
-
-      choice(isJungle, isMode2) {
-        const skills = [];
-        const selected = [];
-
-        if (isJungle) {
-          const cj = this.data.find(i => i.name === "惩戒");
-          skills.push(cj);
-          selected.push(cj.id);
-        }
-
-        while (true) {
-          const num = Math.floor(Math.random() * this._length);
-          const skill = this.data[num];
-          if (skills.length >= 2) {
-            break;
-          }
-
-          if (skill && !selected.includes(skill.id) && skill.name !== "惩戒") {
-            if (isMode2 && !skill.type.includes(2)) {
-              continue;
+            if (parseIntBlueValue < 0 || parseIntBlueValue > 5) {
+              alert("蓝方人数 0~5");
+              return;
             }
-            skills.push(skill);
-            selected.push(skill.id);
+
+            if (parseIntRedValue < 0 || parseIntRedValue > 5) {
+              alert("红方人数 0~5");
+              return;
+            }
+
+            blueTeam.setTeamNum(parseIntBlueValue);
+            redTeam.setTeamNum(parseIntRedValue);
+            intervalId.value = setInterval(() => {
+              blueTeam.start();
+              redTeam.start();
+            }, 50);
+          };
+
+          const stop = () => {
+            clearInterval(intervalId.value);
+            intervalId.value = null;
+          };
+
+          onMounted(() => {
+            // 假设这里是从后端获取数据
+            championData.value = g_championData;
+            runeData.value = g_runeData;
+            positionData.value = g_positionData;
+            summonerSkillData.value = g_summonerSkillData;
+          });
+
+          return {
+            blueTeamPlayerNum,
+            redTeamPlayerNum,
+            gameMode,
+            blueTeam,
+            redTeam,
+            start,
+            stop,
+          };
+        },
+      });
+      const ChampionSelectedMode = {
+        REPEAT: 0,
+        NO_REPEAT: 1,
+      };
+
+      class ChampionPool {
+        constructor(data) {
+          this.data = data;
+          this.mode = ChampionSelectedMode["REPEAT"];
+          this._selected = [];
+          this._length = data.length;
+        }
+
+        choice() {
+          if (this._length - this._selected.length < 5) {
+            alert("当前剩余英雄池不足以分配，请重置英雄池！");
+            return;
+          }
+
+          while (true) {
+            const num = Math.floor(Math.random() * this._length);
+            const champion = this.data[num];
+            if (champion && !this._selected.includes(champion.id)) {
+              if (this.isNoRepeat()) {
+                this.freeze(champion.id);
+              }
+              return champion;
+            }
           }
         }
 
-        return skills;
+        isNoRepeat() {
+          return this.mode === 1;
+        }
+
+        setMode(mode) {
+          this.mode = mode;
+        }
+
+        freeze(championId) {
+          this._selected.push(championId);
+        }
+
+        reset() {
+          this._selected = [];
+          this.mode = 0;
+        }
+
+        clear() {
+          this._selected = [];
+        }
       }
 
-      reset() { }
+      class PositionPool {
+        constructor(data) {
+          this.data = data;
+          this._selected = [];
+          this._length = data.length;
 
-      clear() { }
-    }
+          this._choiceList = JSON.parse(JSON.stringify(this.data));
+        }
 
-    app.mount('#app');
-  </script>
-</body>
+        choice(isMode2) {
+          if (isMode2) {
+            return this._choiceList.find((item) => item.position === "middle");
+          }
+          const num = Math.floor(Math.random() * this._choiceList.length);
+          const pos = this._choiceList[num];
+          if (pos && !this._selected.includes(pos.id)) {
+            this._choiceList = this._choiceList.filter((i) => i.id !== pos.id);
+            return pos;
+          }
+        }
 
+        reset() {
+          this._selected = [];
+          this._choiceList = JSON.parse(JSON.stringify(this.data));
+        }
+
+        clear() {
+          this._selected = [];
+          this._choiceList = JSON.parse(JSON.stringify(this.data));
+        }
+      }
+
+      class RunePool {
+        constructor(data) {
+          this.data = data;
+          this._length = data.length;
+        }
+
+        choice() {
+          const num = Math.floor(Math.random() * this._length);
+          const rune = this.data[num];
+          if (rune) {
+            return rune;
+          }
+        }
+
+        reset() {}
+
+        clear() {}
+      }
+
+      class SkillPool {
+        constructor(data) {
+          this.data = data;
+          this._length = data.length;
+        }
+
+        choice(isJungle, isMode2) {
+          const skills = [];
+          const selected = [];
+
+          if (isJungle) {
+            const cj = this.data.find((i) => i.name === "惩戒");
+            skills.push(cj);
+            selected.push(cj.id);
+          }
+
+          while (true) {
+            const num = Math.floor(Math.random() * this._length);
+            const skill = this.data[num];
+            if (skills.length >= 2) {
+              break;
+            }
+
+            if (
+              skill &&
+              !selected.includes(skill.id) &&
+              skill.name !== "惩戒"
+            ) {
+              if (isMode2 && !skill.type.includes(2)) {
+                continue;
+              }
+              skills.push(skill);
+              selected.push(skill.id);
+            }
+          }
+
+          return skills;
+        }
+
+        reset() {}
+
+        clear() {}
+      }
+
+      app.mount("#app");
+    </script>
+  </body>
 </html>

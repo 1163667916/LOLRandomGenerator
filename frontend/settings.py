@@ -137,6 +137,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "py", "position"),
     os.path.join(BASE_DIR, "py", "rune"),
     os.path.join(BASE_DIR, "py", "summoner_skill"),
+    os.path.join(BASE_DIR, "py", "bg"),
 ]
 
 # Default primary key field type
